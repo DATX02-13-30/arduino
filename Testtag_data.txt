@@ -1,0 +1,29 @@
+FORMAT		DEC	HEX	ASCII
+START		2	2	2
+
+TAG
+D0		48	30	0		Version number
+D1		52	34	4		or customer id
+DATA
+D2		48	30	0
+D3		48	30	0
+D4		49	31	1
+D5		70	46	F	
+D6		52	34	4
+D7		57	39	9
+D8		50	32	2
+D9		52	34	4
+END OF TAG
+					D0    D2    D4    D6    D8
+CRC1		55	37	7	0 XOR 0 XOR 1 XOR 4 XOR 2 = 7 rätt
+
+					D1    D3    D5    D7    D9
+CRC2		54	36	6	4 XOR 0 XOR F XOR 9 XOR 4 = 6 Rätt
+
+END		3	3	3
+
+
+TÄNK PÅ 100ms decoding time på rfid kretsen!
+
+
+
