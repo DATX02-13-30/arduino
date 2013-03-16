@@ -2,7 +2,7 @@
 int data1 = 0;
 
 //Just used until new code is done.
-int tag[14];
+//int tag[14];
 
 int crc1;
 int crc2;
@@ -14,40 +14,28 @@ void setup(){
 
 //function to read tag, we recieve the array we write the info to
 int* readTag(){
-  //Delay for data to arrive into the serial buffer.
-  delay(200);
   //array where we add tag data.
-  int arrayTag[14];
-  //Used in the loop.
-  int tagData;
-  //Transfering data from serial to the tag in the loop
-  for(int i = 0; i < 14; i++){
-    // read the incoming number on serial RX
-    tagData = Serial.read();
-    //transfering it to the array.
-    arrayTag[i] = tagData;
+  int tag[14];
+  
+  //Delay for data to arrive into the serial buffer.
+  if(Serial.available()>0) {
+    delay(200);
+    //Transfering data from serial to the tag in the loop
+    for(int i = 0; i < 14; i++){
+      // read the incoming number on serial RX
+      tag[i] = Serial.read();
+      //transfering it to the array.
+    }
   }
   //we flush the serial so we dont have residual data when we read it again.
   Serial.flush();
   //Return the tag array.
-  return arrayTag;
+  return tag;
 }
 
-void printTag(){
-  
-}
-
-void loop() 
-{
-  
-
-  if(Serial.available() > 0) {  
-    //we call on the read function and save the array to a pointer.
-    int* tag;
-    tag = readTag();
-    
-    
-    Serial.println("New Tag");
+void printTag(int* inputTag ){
+  int* tag = inputTag;
+  Serial.println("New Tag");
     //printing data
     for(int i = 1; i < 11; i++){
       //Check if it's a number or letter
@@ -61,12 +49,13 @@ void loop()
       }
 
     }
-    Serial.println("");
-    Serial.println("End of Tag");
+    Serial.println("\nEnd of Tag");
+}
 
-  }
-
-
+void loop() 
+{
+  int* tag = readTag();
+  printTag(tag);
 }
 
 
