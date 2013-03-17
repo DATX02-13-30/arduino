@@ -9,14 +9,13 @@ int* readTag(){
   int tag[14];
   
   //Delay for data to arrive into the serial buffer.
-  if(Serial.available()>0) {
-    delay(200);
+   delay(200);
     //Transfering data from serial to the tag in the loop
     for(int i = 0; i < 14; i++){
       // read the incoming number on serial RX
       tag[i] = Serial.read();
       //transfering it to the array.
-    }
+    
   }
   //we flush the serial so we dont have residual data when we read it again.
   Serial.flush();
@@ -58,8 +57,9 @@ boolean crcCheck(int* inputTag) {
 
 void loop() 
 {
-  int* tag = readTag();
-  if(crcCheck(tag)){
+  if(Serial.available()){
+    int* tag = readTag();
+    //if(crcCheck(tag)){
     printTag(tag);
   }
 }
