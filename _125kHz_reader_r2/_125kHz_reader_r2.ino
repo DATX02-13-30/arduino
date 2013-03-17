@@ -1,7 +1,9 @@
 //array to store the latest correct read tag.
-byte stored_tag[14];
+byte stored_Tag[10];
 
 void setup(){
+  //Just initialize the stored tag to this to be able to compare to something.
+//  stored_Tag = {0,0,0,0,0,0,0,0,0,0};
   Serial.flush();      //Flushing serial for correct first read.
   Serial.begin(9600);
 }
@@ -43,6 +45,7 @@ void printTag(byte* pt){
     //Add space to make it more readable.
     Serial.print(" ");
   }
+  //We print out to mark the end of the tag.
   Serial.println();
   Serial.println("End of Tag");
 }
@@ -59,9 +62,30 @@ boolean crcCheck(byte* pt){
   return ((CRC1 == crc_tag[11]) && (CRC2 == crc_tag[12]));
 }
 
-//Used to se if it's a new or 
-boolean newTag(byte* pt){
-  
+//Used to se if it's a new tag or an old one that has been reread.
+boolean newTagCheck(byte* pt){ 
+  byte* new_Tag = pt;
+  //We use this to count identical parts of the old tag and new tag ids.
+  int identical = 0;
+  //iterate through the UID of the tag and compare it to the stored one.
+  for(int i=1; i<11; i++){
+    //Check if the specific tag number is identical.
+    if(new_Tag[i] == stored_Tag[i-1]){
+      //The specific number is identical. We increment variable identical.
+      identical++;
+    }
+  }
+  //we return true if all tag numbers were identical.
+  return (identical != 10);
+}
+
+//Used to store the read tag.
+void storeTag(byte* pt){
+  byte* save_Tag = pt;
+  //We transfer the newley readtag to the stored_tag array.
+  for(int i=1; i<11; i++){
+    stored_Tag[i-1] = save_Tag[i];
+  }
 }
 
 void loop() 
@@ -71,8 +95,11 @@ void loop()
   if(Serial.available() > 0){  
     //we call on the read function and save the array to a pointer.
     readTag(tag);
-    //we check the checksum, if it's correct we print.
-    if(crcCheck(tag)){
+    //we check the checksum and if it's a new tag.
+    //If checksum is correct and the tag is new we print it.
+    if(crcCheck(tag) && newTagCheck(tag)){
+      //We store the new tag.
+      storeTag(tag);
       //we send the tag to the print function.
       printTag(tag);
     }
