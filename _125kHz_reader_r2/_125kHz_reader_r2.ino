@@ -1,12 +1,3 @@
-
-int data1 = 0;
-
-//Just used until new code is done.
-//int tag[14];
-
-int crc1;
-int crc2;
-
 void setup(){
   Serial.flush();      //Flushing serial for correct first read.
   Serial.begin(9600);
@@ -52,10 +43,25 @@ void printTag(int* inputTag ){
     Serial.println("\nEnd of Tag");
 }
 
+boolean crcCheck(int* inputTag) {
+  int* tag = inputTag;
+  int checkValue1 = 0;
+  int checkValue2 = 0;
+  for(int i=1;i<11; i+=2) {
+    checkValue1 = checkValue1 ^ tag[i];
+  }
+  for(int i=2;i<11; i+=2) {
+    checkValue2 = checkValue2 ^ tag[i];
+  }
+  return (checkValue1 == tag[11])&&(checkValue2 == tag[12]);
+}
+
 void loop() 
 {
   int* tag = readTag();
-  printTag(tag);
+  if(crcCheck(tag)){
+    printTag(tag);
+  }
 }
 
 
