@@ -1,12 +1,4 @@
 
-int data1 = 0;
-
-//Just used until new code is done.
-int tag[14];
-
-int crc1;
-int crc2;
-
 void setup(){
   Serial.flush();      //Flushing serial for correct first read.
   Serial.begin(9600);
@@ -15,12 +7,14 @@ void setup(){
 
 void loop() 
 {
-  int tag[14];
+  //Byte array to store the tag data in.
+  byte tag[14];
   if (Serial.available() > 0) {
     delay(200);          //Delay for data to arrive into the serial buffer.
 
     for(int i = 0; i < 14; i++){
       // read the incoming number on serial RX
+      byte data1;
       data1 = Serial.read();
       tag[i] = data1;
     }
