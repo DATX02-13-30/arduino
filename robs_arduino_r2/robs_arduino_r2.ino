@@ -4,6 +4,7 @@ Setup and global variables:
 
 //array to store the latest correct read tag.
 byte stored_Tag[10];
+int stored_Message[64];
 
 /*
   Pin to connect to the circuit
@@ -15,14 +16,14 @@ byte stored_Tag[10];
 int coil_pin = 2;
 
 //Read or not read
-int read;
+int readInfo;
 int sent;
 
 void setup(){
   // Just initialize the stored tag to this to be able to compare to something.
-  stored_Tag = {0,0,0,0,0,0,0,0,0,0};
+  // stored_Tag = {0,0,0,0,0,0,0,0,0,0};
   // No tag is read.
-  read = 0;
+  readInfo = 0;
   sent = 0;
   // Sender initialize
   // Configure of terminal.
@@ -122,9 +123,18 @@ void storeTag(byte* pt){
   }
 }
 
+void storeMessage(int* pt)
+{
+  int* save_Message = pt;
+  
+  for(int i=0; i< 64; i++){
+    stored_Message[i] = save_Message[i];
+  }
+}
+
 void loop()
 {
-  if(!read)
+  if(!readInfo)
   {
       byte tag[14];
       //Checking if there is data on the serial.
@@ -139,28 +149,27 @@ void loop()
           // Send the tag to the print function.
           printTag(tag);
           // Stop reading and start transmitting.
-          read = 1;
+          readInfo = 1;
         }
       }
   }
   else
   {
-        if(!send)
+        if(!sent)
         {
-            // Hex format of the tags UID that we want to spoof.
-            byte tag_to_spoof[10] = stored_Tag;
             // This array is used to construct the tag message we want to send, this array will be modified.
             int binary_message[64] = {1,1,1,1,1,1,1,1,1, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0};
             // The UID gets inserted into the binary_message in this array.
-            load_UID(tag_to_spoof, binary_message);
+            load_UID(stored_Tag, binary_message);
             // Create the parity of the message. Number parity and column parity.
-            create_parity(tag_to_spoof, binary_message);
-            
+            create_parity(stored_Tag, binary_message);
+            // Store binary message in stored_Message
+            storeMessage(binary_message);
             // Start transmitting tag.
-            send = 1;
+            sent = 1;
         }
         // Calling the transmitt function.
-        transmitt_tag(binary_message);
+        transmitt_tag(stored_Message);
         
   
   }
@@ -284,4 +293,3 @@ void create_parity(byte* tag, int* binary_message){
     binary_message[index-i] = column_parity(i, tag);
   }
 }
-
